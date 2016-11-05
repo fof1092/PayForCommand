@@ -1,0 +1,9 @@
+name: PayForCommand
+version: 1.0
+main: me.F_o_F_1092.PayForCommand.Main
+author: F_o_F_1092
+commands:
+  PayForCommand:
+    description: none
+    usage: /PayForCommand
+    aliases: [pfc]

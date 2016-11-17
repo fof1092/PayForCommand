@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import me.F_o_F_1092.PayForCommand.Command.Command;
 import me.F_o_F_1092.PayForCommand.Command.CommandListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.UpdateListener;
 import net.milkbowl.vault.economy.Economy;
 
 public class EventListener implements Listener {
@@ -23,7 +24,7 @@ public class EventListener implements Listener {
 	public void onJoin(PlayerJoinEvent e) {
 		final Player p = e.getPlayer();
 
-		if (plugin.updateAvailable) {
+		if (UpdateListener.isAnewUpdateAvailable()) {
 			if (p.hasPermission("PayForCommand.UpdateMessage")) {
 				p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.15"));
 			}

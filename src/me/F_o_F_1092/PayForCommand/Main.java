@@ -1,23 +1,9 @@
 package me.F_o_F_1092.PayForCommand;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.UUID;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,13 +16,13 @@ import me.F_o_F_1092.PayForCommand.Command.Command;
 import me.F_o_F_1092.PayForCommand.Command.CommandListener;
 import me.F_o_F_1092.PayForCommand.PluginManager.HelpMessage;
 import me.F_o_F_1092.PayForCommand.PluginManager.HelpPageListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.UpdateListener;
 
 public class Main extends JavaPlugin {
 
 	public HashMap<String, String> msg = new HashMap<String, String>();
 	public HashMap<UUID, String> playerCommand = new HashMap<UUID, String>();
 	boolean vault = false;
-	boolean updateAvailable = false;
 
 	public void onEnable() {
 		System.out.println("[PayForCommand] a Plugin by F_o_F_1092");
@@ -56,12 +42,22 @@ public class Main extends JavaPlugin {
 		if(!fileCommand.exists()) {
 			try {
 				ymlFileCommand.save(fileCommand);
-				ymlFileCommand.set("Version", 1.0);
+				ymlFileCommand.set("Version", UpdateListener.getUpdateDoubleVersion());
 				ymlFileCommand.set("TestCommand.Name", "/TestCommand give");
 				ymlFileCommand.set("TestCommand.Price", 49.50);
 				ymlFileCommand.save(fileCommand);
 			} catch (IOException e1) {
-				System.out.println("\u001B[31m[PayForCommand] ERROR: 009 | Can't create the Config.yml. [" + e1.getMessage() +"]\u001B[0m");
+				System.out.println("\u001B[31m[PayForCommand] ERROR: 001 | Can't create the Config.yml. [" + e1.getMessage() +"]\u001B[0m");
+			}
+		} else {
+			double version = ymlFileCommand.getDouble("Version");
+			if (version < UpdateListener.getUpdateDoubleVersion()) {
+				try {
+					ymlFileCommand.set("Version", UpdateListener.getUpdateDoubleVersion());
+					ymlFileCommand.save(fileCommand);
+				} catch (IOException e) {		
+					System.out.println("\u001B[31m[PayForCommand] ERROR: 001 | Can't create the Config.yml. [" + e.getMessage() +"]\u001B[0m");
+				}
 			}
 		}
 		
@@ -78,7 +74,7 @@ public class Main extends JavaPlugin {
 		if(!fileMessages.exists()) {
 			try {
 				ymlFileMessage.save(fileMessages);
-				ymlFileMessage.set("Version", 1.0);
+				ymlFileMessage.set("Version", UpdateListener.getUpdateDoubleVersion());
 				ymlFileMessage.set("[PayForCommand]", "&a[&2PayForCommand&a] ");
 				ymlFileMessage.set("Color.1", "&2");
 				ymlFileMessage.set("Color.2", "&a");
@@ -108,7 +104,17 @@ public class Main extends JavaPlugin {
 				ymlFileMessage.set("HelpText.5", "This command is reloading the Config.yml and Commands.yml file.");
 				ymlFileMessage.save(fileMessages);
 			} catch (IOException e1) {
-				System.out.println("\u001B[31m[PayForCommand] ERROR: 012 | Can't create the Messages.yml. [" + e1.getMessage() +"]\u001B[0m");
+				System.out.println("\u001B[31m[PayForCommand] ERROR: 002 | Can't create the Messages.yml. [" + e1.getMessage() +"]\u001B[0m");
+			}
+		} else {
+			double version = ymlFileMessage.getDouble("Version");
+			if (version < UpdateListener.getUpdateDoubleVersion()) {
+				try {
+					ymlFileMessage.set("Version", UpdateListener.getUpdateDoubleVersion());
+					ymlFileMessage.save(fileMessages);
+				} catch (IOException e) {		
+					System.out.println("\u001B[31m[PayForCommand] ERROR: 002 | Can't create the Messages.yml. [" + e.getMessage() +"]\u001B[0m");
+				}
 			}
 		}
 
@@ -146,53 +152,7 @@ public class Main extends JavaPlugin {
 		HelpPageListener.addHelpMessage(new HelpMessage(null, msg.get("helpText.4"), "/pfc no"));
 		HelpPageListener.addHelpMessage(new HelpMessage("PayForCommand.Reload", msg.get("helpText.5"), "/pfc reload"));
 
-		Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-			@Override
-			public void run() {
-				try {
-					TrustManager[] trustAllCerts = new TrustManager[] {
-							new X509TrustManager() {
-								public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-									return null;
-								}
-								
-								public void checkClientTrusted(X509Certificate[] certs, String authType) {  }
-
-								public void checkServerTrusted(X509Certificate[] certs, String authType) {  }
-							}
-					};
-					
-					SSLContext sslC = SSLContext.getInstance("SSL");
-					sslC.init(null, trustAllCerts, new java.security.SecureRandom());
-					
-					HttpsURLConnection.setDefaultSSLSocketFactory(sslC.getSocketFactory());
-
-					HostnameVerifier allHostsValid = new HostnameVerifier() {
-						public boolean verify(String hostname, SSLSession session) {
-							return true;
-						}
-					};
-						    
-					HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-						 
-					URL url = new URL("https://fof1092.de/Plugins/PFC/version.txt");
-					URLConnection connection = url.openConnection();
-					final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream())); 
-					
-					if (!reader.readLine().equals("Version: 1.0")) {
-						System.out.println("[PayForCommand] A new update is available.");
-						updateAvailable = true;
-					}
-					
-				} catch ( IOException e) {
-					System.out.println("\u001B[31m[PayForCommand] Couldn't check for updates. [" + e.getMessage() +"]\u001B[0m");
-				} catch (NoSuchAlgorithmException e) {
-					System.out.println("\u001B[31m[PayForCommand] Couldn't check for updates. [" + e.getMessage() +"]\u001B[0m");
-				} catch (KeyManagementException e) {
-					System.out.println("\u001B[31m[PayForCommand] Couldn't check for updates. [" + e.getMessage() +"]\u001B[0m");
-				}
-			}
-		}, 0L);
+		UpdateListener.checkForUpdate(this);
 	}
 
 	public void onDisable() {

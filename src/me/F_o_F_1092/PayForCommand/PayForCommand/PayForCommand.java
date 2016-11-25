@@ -1,11 +1,11 @@
-package me.F_o_F_1092.PayForCommand.Command;
+package me.F_o_F_1092.PayForCommand.PayForCommand;
 
-public class Command {
+public class PayForCommand {
 
 	String command;
 	double price;
 	
-	public Command(String command, double price) {
+	public PayForCommand(String command, double price) {
 		this.command = command;
 		this.price = price;
 	}

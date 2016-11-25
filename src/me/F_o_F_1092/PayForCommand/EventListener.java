@@ -7,8 +7,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import me.F_o_F_1092.PayForCommand.Command.Command;
-import me.F_o_F_1092.PayForCommand.Command.CommandListener;
+import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommand;
+import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommandListener;
 import me.F_o_F_1092.PayForCommand.PluginManager.UpdateListener;
 import net.milkbowl.vault.economy.Economy;
 
@@ -36,18 +36,18 @@ public class EventListener implements Listener {
 		if (!e.isCancelled()) {
 			Player p = (Player) e.getPlayer();
 			
-			if (CommandListener.isCommand(e.getMessage())) {
+			if (PayForCommandListener.isCommand(e.getMessage())) {
 				if (!plugin.vault) {
 					p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.14"));
 				} else {
-					Command command = CommandListener.getCommand(e.getMessage());
+					PayForCommand payForCommand = PayForCommandListener.getCommand(e.getMessage());
 					
 					if (!plugin.playerCommand.containsKey(p.getUniqueId()) || plugin.playerCommand.containsKey(p.getUniqueId()) && !plugin.playerCommand.get(p.getUniqueId()).equals(e.getMessage())) {
 						p.sendMessage(plugin.msg.get("msg.6") + plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.6"));
 						p.sendMessage("");
 						
 						String replaceString = plugin.msg.get("msg.3");
-						replaceString = replaceString.replace("[MONEY]", command.getPrice() + "");
+						replaceString = replaceString.replace("[MONEY]", payForCommand.getPrice() + "");
 						replaceString = replaceString.replace("[COMMAND]", e.getMessage());
 						p.sendMessage(replaceString); 
 						
@@ -62,14 +62,14 @@ public class EventListener implements Listener {
 						
 						e.setCancelled(true);
 					} else {
-						if (getVault().getBalance(p) < command.getPrice()) {
+						if (getVault().getBalance(p) < payForCommand.getPrice()) {
 							p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.8"));
 							e.setCancelled(true);
 						} else {
-							getVault().withdrawPlayer(p, command.getPrice());
+							getVault().withdrawPlayer(p, payForCommand.getPrice());
 							
 							String replaceString = plugin.msg.get("msg.9");
-							replaceString = replaceString.replace("[MONEY]", command.getPrice() + "");
+							replaceString = replaceString.replace("[MONEY]", payForCommand.getPrice() + "");
 							p.sendMessage(plugin.msg.get("[PayForCommand]") + replaceString); 
 						}
 					}

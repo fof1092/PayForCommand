@@ -12,8 +12,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import me.F_o_F_1092.PayForCommand.Command.CommandListener;
-import me.F_o_F_1092.PayForCommand.PluginManager.HelpMessage;
+import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommand;
+import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommandListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.CommandListener;
 import me.F_o_F_1092.PayForCommand.PluginManager.HelpPageListener;
 import me.F_o_F_1092.PayForCommand.PluginManager.UpdateListener;
 
@@ -29,18 +30,18 @@ public class CommnandPayForCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender cs, Command cmd, String label, String[] args) {
 		if (args.length == 0) {
 			String replaceCommand = plugin.msg.get("msg.13");
-			replaceCommand = replaceCommand.replace("[COMMAND]", HelpPageListener.getColoredCommand("/pfc help (Page)"));
+			replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc help (Page)").getColoredCommand());
 			cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
 		} else if (args[0].equalsIgnoreCase("help")) {
 			if (!(args.length >= 1 && args.length <= 2)) {
 				String replaceCommand = plugin.msg.get("msg.13");
-				replaceCommand = replaceCommand.replace("[COMMAND]", HelpPageListener.getColoredCommand("/pfc help (Page)"));
+				replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc help (Page)").getColoredCommand());
 				cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
 			} else {
 				if (!(cs instanceof Player)) {
 					if (args.length != 1) {
 						String replaceCommand = plugin.msg.get("msg.13");
-						replaceCommand = replaceCommand.replace("[COMMAND]", HelpPageListener.getColoredCommand("/pfc help (Page)"));
+						replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc help (Page)").getColoredCommand());
 						cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
 					} else {
 						HelpPageListener.sendNormalMessage(cs);
@@ -52,12 +53,12 @@ public class CommnandPayForCommand implements CommandExecutor {
 					} else {
 						if (!HelpPageListener.isNumber(args[1])) {
 							String replaceCommand = plugin.msg.get("msg.13");
-							replaceCommand = replaceCommand.replace("[COMMAND]", HelpPageListener.getColoredCommand("/pfc help (Page)"));
+							replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc help (Page)").getColoredCommand());
 							cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
 						} else {
 							if (Integer.parseInt(args[1]) <= 0 || Integer.parseInt(args[1]) > HelpPageListener.getMaxPlayerPages(p)) {
 								String replaceCommand = plugin.msg.get("msg.13");
-								replaceCommand = replaceCommand.replace("[COMMAND]", HelpPageListener.getColoredCommand("/pfc help (Page)"));
+								replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc help (Page)").getColoredCommand());
 								cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
 							} else {
 								HelpPageListener.sendMessage(p, Integer.parseInt(args[1]) - 1);
@@ -69,7 +70,7 @@ public class CommnandPayForCommand implements CommandExecutor {
 		} else if (args[0].equalsIgnoreCase("yes")) {
 			if (args.length != 1) {
 				String replaceCommand = plugin.msg.get("msg.13");
-				replaceCommand = replaceCommand.replace("[COMMAND]", HelpPageListener.getColoredCommand("/pfc yes"));
+				replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc yes").getColoredCommand());
 				cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
 			} else {
 				if (!(cs instanceof Player)) {
@@ -88,7 +89,7 @@ public class CommnandPayForCommand implements CommandExecutor {
 		} else if (args[0].equalsIgnoreCase("no")) {
 			if (args.length != 1) {
 				String replaceCommand = plugin.msg.get("msg.13");
-				replaceCommand = replaceCommand.replace("[COMMAND]", HelpPageListener.getColoredCommand("/pfc no"));
+				replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc no").getColoredCommand());
 				cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
 			} else {
 				if (!(cs instanceof Player)) {
@@ -110,7 +111,7 @@ public class CommnandPayForCommand implements CommandExecutor {
 		} else if (args[0].equalsIgnoreCase("info")) {
 			if (args.length != 1) {
 				String replaceCommand = plugin.msg.get("msg.13");
-				replaceCommand = replaceCommand.replace("[COMMAND]", HelpPageListener.getColoredCommand("/pfc info"));
+				replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc info").getColoredCommand());
 				cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
 			} else {
 				cs.sendMessage("§2-----§a[§2PayForCommand§a]§2-----");
@@ -121,7 +122,7 @@ public class CommnandPayForCommand implements CommandExecutor {
 		} else if (args[0].equalsIgnoreCase("reload")) {
 			if (args.length != 1) {
 				String replaceCommand = plugin.msg.get("msg.13");
-				replaceCommand = replaceCommand.replace("[COMMAND]", HelpPageListener.getColoredCommand("/pfc reload"));
+				replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc reload").getColoredCommand());
 				cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
 			} else {
 				if (!cs.hasPermission("PayForCommand.Reload")) {
@@ -155,7 +156,7 @@ public class CommnandPayForCommand implements CommandExecutor {
 					
 					for (String strg : ymlFileCommand.getKeys(false)) {
 						if (!strg.equals("Version")) {
-							CommandListener.addCommand(new me.F_o_F_1092.PayForCommand.Command.Command(ymlFileCommand.getString(strg + ".Name"), ymlFileCommand.getDouble(strg + ".Price")));
+							PayForCommandListener.addCommand(new PayForCommand(ymlFileCommand.getString(strg + ".Name"), ymlFileCommand.getDouble(strg + ".Price")));
 						}
 					}
 					
@@ -220,19 +221,15 @@ public class CommnandPayForCommand implements CommandExecutor {
 					plugin.msg.put("helpTextGui.2", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.2")));
 					plugin.msg.put("helpTextGui.3", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.3")));
 					plugin.msg.put("helpTextGui.4", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.4")));
-					plugin.msg.put("helpText.1", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.2") + ymlFileMessage.getString("HelpText.1")));
-					plugin.msg.put("helpText.2", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.2") + ymlFileMessage.getString("HelpText.2")));
-					plugin.msg.put("helpText.3", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.2") + ymlFileMessage.getString("HelpText.3")));
-					plugin.msg.put("helpText.4", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.2") + ymlFileMessage.getString("HelpText.4")));
-					plugin.msg.put("helpText.5", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.2") + ymlFileMessage.getString("HelpText.5")));
+
 
 					HelpPageListener.setPluginNametag(plugin.msg.get("[PayForCommand]"));
 					
-					HelpPageListener.addHelpMessage(new HelpMessage(null, plugin.msg.get("helpText.1"), "/pfc help (Page)"));
-					HelpPageListener.addHelpMessage(new HelpMessage(null, plugin.msg.get("helpText.2"), "/pfc info"));
-					HelpPageListener.addHelpMessage(new HelpMessage(null, plugin.msg.get("helpText.3"), "/pfc yes"));
-					HelpPageListener.addHelpMessage(new HelpMessage(null, plugin.msg.get("helpText.4"), "/pfc no"));
-					HelpPageListener.addHelpMessage(new HelpMessage("PayForCommand.Reload", plugin.msg.get("helpText.5"), "/pfc reload"));
+					CommandListener.addCommand(new me.F_o_F_1092.PayForCommand.PluginManager.Command("/pfc help (Page)", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.1"))));
+					CommandListener.addCommand(new me.F_o_F_1092.PayForCommand.PluginManager.Command("/pfc info", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.2"))));
+					CommandListener.addCommand(new me.F_o_F_1092.PayForCommand.PluginManager.Command("/pfc yes", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.3"))));
+					CommandListener.addCommand(new me.F_o_F_1092.PayForCommand.PluginManager.Command("/pfc no", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.4"))));
+					CommandListener.addCommand(new me.F_o_F_1092.PayForCommand.PluginManager.Command("/pfc reload", "PayForCommand.Reload", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.5"))));
 					
 					
 					cs.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.12"));
@@ -240,7 +237,7 @@ public class CommnandPayForCommand implements CommandExecutor {
 			}
 		} else {
 			String replaceCommand = plugin.msg.get("msg.22");
-			replaceCommand = replaceCommand.replace("[COMMAND]", HelpPageListener.getColoredCommand("/pfc help (Page)"));
+			replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc help (Page)").getColoredCommand());
 			cs.sendMessage(plugin.msg.get("[TimeVote]") + replaceCommand); 
 		}
 		

@@ -12,9 +12,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.F_o_F_1092.PayForCommand.Command.Command;
-import me.F_o_F_1092.PayForCommand.Command.CommandListener;
-import me.F_o_F_1092.PayForCommand.PluginManager.HelpMessage;
+import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommand;
+import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommandListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.Command;
+import me.F_o_F_1092.PayForCommand.PluginManager.CommandListener;
 import me.F_o_F_1092.PayForCommand.PluginManager.HelpPageListener;
 import me.F_o_F_1092.PayForCommand.PluginManager.UpdateListener;
 
@@ -35,7 +36,8 @@ public class Main extends JavaPlugin {
 		pm.registerEvents(new EventListener(this), this);
 
 		this.getCommand("PayForCommand").setExecutor(new CommnandPayForCommand(this));
-
+		this.getCommand("PayForCommand").setTabCompleter(new CommnandPayForCommandTabCompleter());
+		
 		File fileCommand = new File("plugins/PayForCommand/Commands.yml");
 		FileConfiguration ymlFileCommand = YamlConfiguration.loadConfiguration(fileCommand);
 
@@ -63,7 +65,7 @@ public class Main extends JavaPlugin {
 		
 		for (String strg : ymlFileCommand.getKeys(false)) {
 			if (!strg.equals("Version")) {
-				CommandListener.addCommand(new Command(ymlFileCommand.getString(strg + ".Name"), ymlFileCommand.getDouble(strg + ".Price")));
+				PayForCommandListener.addCommand(new PayForCommand(ymlFileCommand.getString(strg + ".Name"), ymlFileCommand.getDouble(strg + ".Price")));
 			}
 		}
 		
@@ -138,20 +140,16 @@ public class Main extends JavaPlugin {
 		msg.put("helpTextGui.2", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.2")));
 		msg.put("helpTextGui.3", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.3")));
 		msg.put("helpTextGui.4", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.4")));
-		msg.put("helpText.1", ChatColor.translateAlternateColorCodes('&', msg.get("color.2") + ymlFileMessage.getString("HelpText.1")));
-		msg.put("helpText.2", ChatColor.translateAlternateColorCodes('&', msg.get("color.2") + ymlFileMessage.getString("HelpText.2")));
-		msg.put("helpText.3", ChatColor.translateAlternateColorCodes('&', msg.get("color.2") + ymlFileMessage.getString("HelpText.3")));
-		msg.put("helpText.4", ChatColor.translateAlternateColorCodes('&', msg.get("color.2") + ymlFileMessage.getString("HelpText.4")));
-		msg.put("helpText.5", ChatColor.translateAlternateColorCodes('&', msg.get("color.2") + ymlFileMessage.getString("HelpText.5")));
 
+		
 		HelpPageListener.setPluginNametag(msg.get("[PayForCommand]"));
 		
-		HelpPageListener.addHelpMessage(new HelpMessage(null, msg.get("helpText.1"), "/pfc help (Page)"));
-		HelpPageListener.addHelpMessage(new HelpMessage(null, msg.get("helpText.2"), "/pfc info"));
-		HelpPageListener.addHelpMessage(new HelpMessage(null, msg.get("helpText.3"), "/pfc yes"));
-		HelpPageListener.addHelpMessage(new HelpMessage(null, msg.get("helpText.4"), "/pfc no"));
-		HelpPageListener.addHelpMessage(new HelpMessage("PayForCommand.Reload", msg.get("helpText.5"), "/pfc reload"));
-
+		CommandListener.addCommand(new Command("/pfc help (Page)", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.1"))));
+		CommandListener.addCommand(new Command("/pfc info", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.2"))));
+		CommandListener.addCommand(new Command("/pfc yes", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.3"))));
+		CommandListener.addCommand(new Command("/pfc no", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.4"))));
+		CommandListener.addCommand(new Command("/pfc reload", "PayForCommand.Reload", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.5"))));
+		
 		UpdateListener.checkForUpdate(this);
 	}
 

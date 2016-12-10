@@ -2,6 +2,7 @@ package me.F_o_F_1092.PayForCommand;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -46,7 +47,12 @@ public class Main extends JavaPlugin {
 				ymlFileCommand.save(fileCommand);
 				ymlFileCommand.set("Version", UpdateListener.getUpdateDoubleVersion());
 				ymlFileCommand.set("TestCommand.Name", "/TestCommand give");
+				ArrayList<String> commands = new ArrayList<String>();
+				commands.add("/TC give");
+				commands.add("/TC i");
+				ymlFileCommand.set("TestCommand.Aliases", commands);
 				ymlFileCommand.set("TestCommand.Price", 49.50);
+				ymlFileCommand.set("TestCommand.Permission", "The.Default.Command.Permission.*");
 				ymlFileCommand.save(fileCommand);
 			} catch (IOException e1) {
 				System.out.println("\u001B[31m[PayForCommand] ERROR: 001 | Can't create the Config.yml. [" + e1.getMessage() +"]\u001B[0m");
@@ -65,7 +71,24 @@ public class Main extends JavaPlugin {
 		
 		for (String strg : ymlFileCommand.getKeys(false)) {
 			if (!strg.equals("Version")) {
-				PayForCommandListener.addCommand(new PayForCommand(ymlFileCommand.getString(strg + ".Name"), ymlFileCommand.getDouble(strg + ".Price")));
+				try {
+					ArrayList<String> commands = new ArrayList<String>();
+					commands.add(ymlFileCommand.getString(strg + ".Name"));
+					
+					if (ymlFileCommand.contains(strg + ".Aliases")) {
+						commands.addAll(ymlFileCommand.getStringList(strg + ".Aliases"));
+					}
+					
+					PayForCommand payForCommand = new PayForCommand(commands, ymlFileCommand.getDouble(strg + ".Price"));
+					
+					if (ymlFileCommand.contains(strg + ".Permission")) {
+						payForCommand.setPermission(ymlFileCommand.getString(strg + ".Permission"));
+					}
+					
+					PayForCommandListener.addCommand(payForCommand);
+				} catch (Exception e) {
+					System.out.println("\u001B[31m[PayForCommand] ERROR: 003 | Faild to load the Configuration fpr the Command \"" + strg + "\". [" + e.getMessage() +"]\u001B[0m");
+				}
 			}
 		}
 		

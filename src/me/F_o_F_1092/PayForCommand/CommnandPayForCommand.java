@@ -2,6 +2,7 @@ package me.F_o_F_1092.PayForCommand;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -130,7 +131,6 @@ public class CommnandPayForCommand implements CommandExecutor {
 				} else {
 					cs.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.11"));
 					
-					CommandListener.clearCommands();
 					plugin.playerCommand.clear();
 					
 					if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
@@ -138,6 +138,8 @@ public class CommnandPayForCommand implements CommandExecutor {
 					} else {
 						plugin.vault = false;
 					}
+					
+					CommandListener.clearCommands();
 					
 					File fileCommand = new File("plugins/PayForCommand/Commands.yml");
 					FileConfiguration ymlFileCommand = YamlConfiguration.loadConfiguration(fileCommand);
@@ -147,7 +149,12 @@ public class CommnandPayForCommand implements CommandExecutor {
 							ymlFileCommand.save(fileCommand);
 							ymlFileCommand.set("Version", UpdateListener.getUpdateDoubleVersion());
 							ymlFileCommand.set("TestCommand.Name", "/TestCommand give");
+							ArrayList<String> commands = new ArrayList<String>();
+							commands.add("/TC give");
+							commands.add("/TC i");
+							ymlFileCommand.set("TestCommand.Aliases", commands);
 							ymlFileCommand.set("TestCommand.Price", 49.50);
+							ymlFileCommand.set("TestCommand.Permission", "The.Default.Command.Permission.*");
 							ymlFileCommand.save(fileCommand);
 						} catch (IOException e1) {
 							System.out.println("\u001B[31m[PayForCommand] ERROR: 001 | Can't create the Config.yml. [" + e1.getMessage() +"]\u001B[0m");
@@ -156,7 +163,24 @@ public class CommnandPayForCommand implements CommandExecutor {
 					
 					for (String strg : ymlFileCommand.getKeys(false)) {
 						if (!strg.equals("Version")) {
-							PayForCommandListener.addCommand(new PayForCommand(ymlFileCommand.getString(strg + ".Name"), ymlFileCommand.getDouble(strg + ".Price")));
+							try {
+								ArrayList<String> commands = new ArrayList<String>();
+								commands.add(ymlFileCommand.getString(strg + ".Name"));
+								
+								if (ymlFileCommand.contains(strg + ".Aliases")) {
+									commands.addAll(ymlFileCommand.getStringList(strg + ".Aliases"));
+								}
+								
+								PayForCommand payForCommand = new PayForCommand(commands, ymlFileCommand.getDouble(strg + ".Price"));
+								
+								if (ymlFileCommand.contains(strg + ".Permission")) {
+									payForCommand.setPermission(ymlFileCommand.getString(strg + ".Permission"));
+								}
+								
+								PayForCommandListener.addCommand(payForCommand);
+							} catch (Exception e) {
+								System.out.println("\u001B[31m[PayForCommand] ERROR: 003 | Faild to load the Configuration fpr the Command \"" + strg + "\". [" + e.getMessage() +"]\u001B[0m");
+							}
 						}
 					}
 					
@@ -204,19 +228,19 @@ public class CommnandPayForCommand implements CommandExecutor {
 					plugin.msg.put("[PayForCommand]", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("[PayForCommand]")));
 					plugin.msg.put("color.1", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("Color.1")));
 					plugin.msg.put("color.2", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("Color.2")));
-					plugin.msg.put("plugin.msg.1", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.1")));
-					plugin.msg.put("plugin.msg.2", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.2")));
-					plugin.msg.put("plugin.msg.3", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.3")));
-					plugin.msg.put("plugin.msg.4-5", ChatColor.translateAlternateColorCodes('&', "[\"\",{\"text\":\"           \"},{\"text\":\"" + ymlFileMessage.getString("Message.4") + "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/PayForCommand yes\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + ymlFileMessage.getString("Message.4") + "\"}]}}},{\"text\":\"                      \"},{\"text\":\"" + ymlFileMessage.getString("Message.5") + "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/PayForCommand no\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + ymlFileMessage.getString("Message.5") + "\"}]}}}]))"));
-					plugin.msg.put("plugin.msg.6", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.6")));
-					plugin.msg.put("plugin.msg.7", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.7")));
-					plugin.msg.put("plugin.msg.8", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.8")));
-					plugin.msg.put("plugin.msg.9", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.9")));
-					plugin.msg.put("plugin.msg.10", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.10")));
-					plugin.msg.put("plugin.msg.11", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.11")));
-					plugin.msg.put("plugin.msg.12", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.12")));
-					plugin.msg.put("plugin.msg.13", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.13")));
-					plugin.msg.put("plugin.msg.14", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.14")));
+					plugin.msg.put("msg.1", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.1")));
+					plugin.msg.put("msg.2", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.2")));
+					plugin.msg.put("msg.3", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.3")));
+					plugin.msg.put("msg.4-5", ChatColor.translateAlternateColorCodes('&', "[\"\",{\"text\":\"           \"},{\"text\":\"" + ymlFileMessage.getString("Message.4") + "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/PayForCommand yes\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + ymlFileMessage.getString("Message.4") + "\"}]}}},{\"text\":\"                      \"},{\"text\":\"" + ymlFileMessage.getString("Message.5") + "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/PayForCommand no\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + ymlFileMessage.getString("Message.5") + "\"}]}}}]))"));
+					plugin.msg.put("msg.6", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.6")));
+					plugin.msg.put("msg.7", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.7")));
+					plugin.msg.put("msg.8", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.8")));
+					plugin.msg.put("msg.9", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.9")));
+					plugin.msg.put("msg.10", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.10")));
+					plugin.msg.put("msg.11", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.11")));
+					plugin.msg.put("msg.12", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.12")));
+					plugin.msg.put("msg.13", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.13")));
+					plugin.msg.put("msg.14", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.14")));
 					plugin.msg.put("helpTextGui.1", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.1")));
 					plugin.msg.put("helpTextGui.2", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.2")));
 					plugin.msg.put("helpTextGui.3", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.3")));

@@ -17,8 +17,10 @@ public class PayForCommandListener {
 	public static boolean isCommand(String commandString) {
 		if (!payForCommands.isEmpty()) {
 			for (PayForCommand payForCommands : payForCommands) {
-				if (commandString.toLowerCase().startsWith(payForCommands.getCommand().toLowerCase())) {
-					return true;
+				for (String command : payForCommands.getCommands()) {
+					if (commandString.toLowerCase().startsWith(command.toLowerCase())) {
+						return true;
+					}
 				}
 			}
 		}
@@ -27,8 +29,10 @@ public class PayForCommandListener {
 	
 	public static PayForCommand getCommand(String commandString) {
 		for (PayForCommand payForCommands : payForCommands) {
-			if (commandString.toLowerCase().startsWith(payForCommands.getCommand().toLowerCase())) {
-				return payForCommands;
+			for (String command : payForCommands.getCommands()) {
+				if (commandString.toLowerCase().startsWith(command.toLowerCase())) {
+					return payForCommands;
+				}
 			}
 		}
 		return null;

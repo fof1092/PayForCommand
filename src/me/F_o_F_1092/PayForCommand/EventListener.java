@@ -42,35 +42,39 @@ public class EventListener implements Listener {
 				} else {
 					PayForCommand payForCommand = PayForCommandListener.getCommand(e.getMessage());
 					
-					if (!plugin.playerCommand.containsKey(p.getUniqueId()) || plugin.playerCommand.containsKey(p.getUniqueId()) && !plugin.playerCommand.get(p.getUniqueId()).equals(e.getMessage())) {
-						p.sendMessage(plugin.msg.get("msg.6") + plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.6"));
-						p.sendMessage("");
-						
-						String replaceString = plugin.msg.get("msg.3");
-						replaceString = replaceString.replace("[MONEY]", payForCommand.getPrice() + "");
-						replaceString = replaceString.replace("[COMMAND]", e.getMessage());
-						p.sendMessage(replaceString); 
-						
-						p.sendMessage("");
-						p.sendMessage("");
-						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + p.getName() + " " + plugin.msg.get("msg.4-5"));
-						
-						p.sendMessage("");
-						p.sendMessage(plugin.msg.get("msg.6") + plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.6"));
-						
-						plugin.playerCommand.put(p.getUniqueId(), e.getMessage());
-						
-						e.setCancelled(true);
+					if (payForCommand.getPermission() != null && !p.hasPermission(payForCommand.getPermission())) {
+						p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.1")); 
 					} else {
-						if (getVault().getBalance(p) < payForCommand.getPrice()) {
-							p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.8"));
+						if (!plugin.playerCommand.containsKey(p.getUniqueId()) || plugin.playerCommand.containsKey(p.getUniqueId()) && !plugin.playerCommand.get(p.getUniqueId()).equals(e.getMessage())) {
+							p.sendMessage(plugin.msg.get("msg.6") + plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.6"));
+							p.sendMessage("");
+							
+							String replaceString = plugin.msg.get("msg.3");
+							replaceString = replaceString.replace("[MONEY]", payForCommand.getPrice() + "");
+							replaceString = replaceString.replace("[COMMAND]", e.getMessage());
+							p.sendMessage(replaceString); 
+							
+							p.sendMessage("");
+							p.sendMessage("");
+							Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + p.getName() + " " + plugin.msg.get("msg.4-5"));
+							
+							p.sendMessage("");
+							p.sendMessage(plugin.msg.get("msg.6") + plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.6"));
+							
+							plugin.playerCommand.put(p.getUniqueId(), e.getMessage());
+							
 							e.setCancelled(true);
 						} else {
-							getVault().withdrawPlayer(p, payForCommand.getPrice());
-							
-							String replaceString = plugin.msg.get("msg.9");
-							replaceString = replaceString.replace("[MONEY]", payForCommand.getPrice() + "");
-							p.sendMessage(plugin.msg.get("[PayForCommand]") + replaceString); 
+							if (getVault().getBalance(p) < payForCommand.getPrice()) {
+								p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.8"));
+								e.setCancelled(true);
+							} else {
+								getVault().withdrawPlayer(p, payForCommand.getPrice());
+								
+								String replaceString = plugin.msg.get("msg.9");
+								replaceString = replaceString.replace("[MONEY]", payForCommand.getPrice() + "");
+								p.sendMessage(plugin.msg.get("[PayForCommand]") + replaceString); 
+							}
 						}
 					}
 				}

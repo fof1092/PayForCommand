@@ -23,8 +23,8 @@ import me.F_o_F_1092.PayForCommand.Main;
 public class UpdateListener {
 
 	public static boolean updateAvailable = false;
-	public static double updateDouble = 1.03;
-	public static String updateString = "1.0.3";
+	public static double updateDouble = 1.12;
+	public static String updateString = "1.1.2";
 	static String versionURL = "https://fof1092.de/Plugins/PFC/version.txt";
 	static String tag = "[PayForCommand]";
 	

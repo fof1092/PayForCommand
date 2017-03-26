@@ -3,20 +3,26 @@ package me.F_o_F_1092.PayForCommand;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommand;
 import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommandListener;
 import me.F_o_F_1092.PayForCommand.PluginManager.CommandListener;
 import me.F_o_F_1092.PayForCommand.PluginManager.HelpPageListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.JSONMessage;
+import me.F_o_F_1092.PayForCommand.PluginManager.JSONMessageListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.Math;
 import me.F_o_F_1092.PayForCommand.PluginManager.UpdateListener;
 
 public class CommnandPayForCommand implements CommandExecutor {
@@ -52,7 +58,7 @@ public class CommnandPayForCommand implements CommandExecutor {
 						if (args.length == 1) {
 						HelpPageListener.sendMessage(p, 0);
 					} else {
-						if (!HelpPageListener.isNumber(args[1])) {
+						if (!Math.isNumber(args[1])) {
 							String replaceCommand = plugin.msg.get("msg.13");
 							replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc help (Page)").getColoredCommand());
 							cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
@@ -115,10 +121,64 @@ public class CommnandPayForCommand implements CommandExecutor {
 				replaceCommand = replaceCommand.replace("[COMMAND]", CommandListener.getCommand("/pfc info").getColoredCommand());
 				cs.sendMessage(plugin.msg.get("[PayForCommand]") + replaceCommand); 
 			} else {
-				cs.sendMessage("§2-----§a[§2PayForCommand§a]§2-----");
-				cs.sendMessage("§2Version: §a" + UpdateListener.getUpdateStringVersion());
-				cs.sendMessage("§2By: §aF_o_F_1092");
-				cs.sendMessage("§2PayForCommand: §ahttps://fof1092.de/Plugins/PFC");
+				cs.sendMessage("§2§m-----------§a [§2PayForCommand§a] §2§m-----------");
+				cs.sendMessage("");
+				
+				if (cs instanceof Player) {
+					Player p = (Player) cs;
+					
+					List<JSONMessage> jsonFoFMessages = new ArrayList<JSONMessage>();
+					
+					JSONMessage FoFText = new JSONMessage("§2By: ");
+					JSONMessage FoFLink = new JSONMessage("§aF_o_F_1092");
+					FoFLink.setHoverText("§2[§aOpen my Website§2]");
+					FoFLink.setOpenURL("https://fof1092.de");
+					
+					jsonFoFMessages.add(FoFText);
+					jsonFoFMessages.add(FoFLink);
+					
+					JSONMessageListener.send(p, JSONMessageListener.putJSONMessagesTogether(jsonFoFMessages));
+					
+					cs.sendMessage("");
+					
+					List<JSONMessage> jsonTwitterMessages = new ArrayList<JSONMessage>();
+					
+					JSONMessage twitterText = new JSONMessage("§2Twitter: ");
+					JSONMessage twitterLink = new JSONMessage("§a@F_o_F_1092");
+					twitterLink.setHoverText("§2[§aOpen Twitter§2]");
+					twitterLink.setOpenURL("https://twitter.com/F_o_F_1092");
+					
+					jsonTwitterMessages.add(twitterText);
+					jsonTwitterMessages.add(twitterLink);
+					
+					JSONMessageListener.send(p, JSONMessageListener.putJSONMessagesTogether(jsonTwitterMessages));
+				
+					cs.sendMessage("");
+					cs.sendMessage("§2Version: §a" + UpdateListener.getUpdateStringVersion());
+					
+					List<JSONMessage> jsonPluginPageMessages = new ArrayList<JSONMessage>();
+					
+					JSONMessage pluginWebsiteText = new JSONMessage("§2PayForCommand: ");
+					JSONMessage pluginWebsiteLink = new JSONMessage("§ahttps://fof1092.de/Plugins/PFC");
+					pluginWebsiteLink.setHoverText("§2[§aOpen the Plugin Page§2]");
+					pluginWebsiteLink.setOpenURL("https://fof1092.de/Plugins/PFC");
+					
+					jsonPluginPageMessages.add(pluginWebsiteText);
+					jsonPluginPageMessages.add(pluginWebsiteLink);
+					
+					JSONMessageListener.send(p, JSONMessageListener.putJSONMessagesTogether(jsonPluginPageMessages));
+				
+				} else {
+					cs.sendMessage("§2By: §aF_o_F_1092");
+					cs.sendMessage("");
+					cs.sendMessage("§2Twitter: §a@F_o_F_1092");
+					cs.sendMessage("");
+					cs.sendMessage("§2Version: §a" + UpdateListener.getUpdateStringVersion());
+					cs.sendMessage("§2PayForCommand: §ahttps://fof1092.de/Plugins/PFC");
+				}
+				
+				cs.sendMessage("");
+				cs.sendMessage("§2§m-----------§a [§2PayForCommand§a] §2§m-----------");
 			}
 		} else if (args[0].equalsIgnoreCase("reload")) {
 			if (args.length != 1) {
@@ -148,16 +208,26 @@ public class CommnandPayForCommand implements CommandExecutor {
 						try {
 							ymlFileCommand.save(fileCommand);
 							ymlFileCommand.set("Version", UpdateListener.getUpdateDoubleVersion());
-							ymlFileCommand.set("TestCommand.Name", "/TestCommand give");
-							ArrayList<String> commands = new ArrayList<String>();
-							commands.add("/TC give");
-							commands.add("/TC i");
-							ymlFileCommand.set("TestCommand.Aliases", commands);
-							ymlFileCommand.set("TestCommand.Price", 49.50);
-							ymlFileCommand.set("TestCommand.Permission", "The.Default.Command.Permission.*");
+							ymlFileCommand.set("TestCommand1.Name", "/TestCommand1 give");
+							ArrayList<String> commands1 = new ArrayList<String>();
+							commands1.add("/TC give");
+							commands1.add("/TC i");
+							ymlFileCommand.set("TestCommand1.Aliases", commands1);
+							ymlFileCommand.set("TestCommand1.Price.Money", 49.50);
+							ymlFileCommand.set("TestCommand1.Permission", "The.Default.Command.Permission.*");
+							
+							ymlFileCommand.set("TestCommand2.Name", "/TestCommand2 give");
+							ArrayList<String> commands2 = new ArrayList<String>();
+							commands2.add("/TC give");
+							commands2.add("/TC i");
+							ymlFileCommand.set("TestCommand2.Aliases", commands2);
+							ymlFileCommand.set("TestCommand2.Price.Item.Material", "DIAMOND");
+							ymlFileCommand.set("TestCommand2.Price.Item.Amount", 5);
+							ymlFileCommand.set("TestCommand2.Price.Item.SubID", 0);
+							ymlFileCommand.set("TestCommand2.Permission", "The.Default.Command.Permission.*");
 							ymlFileCommand.save(fileCommand);
 						} catch (IOException e1) {
-							System.out.println("\u001B[31m[PayForCommand] ERROR: 001 | Can't create the Config.yml. [" + e1.getMessage() +"]\u001B[0m");
+							System.out.println("\u001B[31m[PayForCommand] Can't create the Config.yml. [" + e1.getMessage() +"]\u001B[0m");
 						}
 					}
 					
@@ -171,7 +241,26 @@ public class CommnandPayForCommand implements CommandExecutor {
 									commands.addAll(ymlFileCommand.getStringList(strg + ".Aliases"));
 								}
 								
-								PayForCommand payForCommand = new PayForCommand(commands, ymlFileCommand.getDouble(strg + ".Price"));
+								PayForCommand payForCommand = new PayForCommand(commands);
+								if (ymlFileCommand.contains(strg + ".Price.Money")) {
+									payForCommand.setMoneyPrice(ymlFileCommand.getDouble(strg + ".Price.Money"));
+								} else if (ymlFileCommand.contains(strg + ".Price.Item")) {
+									if (ymlFileCommand.contains(strg + ".Price.Item.Material")) {
+										if (Material.getMaterial(ymlFileCommand.getString(strg + ".Price.Item.Material")) != null) {
+											ItemStack is = new ItemStack(Material.getMaterial(ymlFileCommand.getString(strg + ".Price.Item.Material")));
+											
+											if (ymlFileCommand.contains(strg + ".Price.Item.SubID")) {
+												is = new ItemStack(Material.getMaterial(ymlFileCommand.getString(strg + ".Price.Item.Material")), 1, Short.parseShort(ymlFileCommand.get(strg + ".Price.Item.SubID") + ""));
+											}
+											
+											if (ymlFileCommand.contains(strg + ".Price.Item.Amount")) {
+												is.setAmount(ymlFileCommand.getInt(strg + ".Price.Item.Amount"));
+											}
+											
+											payForCommand.setItemPrice(is.getType(), is.getAmount(), is.getDurability());
+										}
+									}
+								}
 								
 								if (ymlFileCommand.contains(strg + ".Permission")) {
 									payForCommand.setPermission(ymlFileCommand.getString(strg + ".Permission"));
@@ -179,7 +268,7 @@ public class CommnandPayForCommand implements CommandExecutor {
 								
 								PayForCommandListener.addCommand(payForCommand);
 							} catch (Exception e) {
-								System.out.println("\u001B[31m[PayForCommand] ERROR: 003 | Faild to load the Configuration fpr the Command \"" + strg + "\". [" + e.getMessage() +"]\u001B[0m");
+								System.out.println("\u001B[31m[PayForCommand] Faild to load the Configuration for the Command \"" + strg + "\". [" + e.getMessage() +"]\u001B[0m");
 							}
 						}
 					}
@@ -197,7 +286,7 @@ public class CommnandPayForCommand implements CommandExecutor {
 							ymlFileMessage.set("Color.2", "&a");
 							ymlFileMessage.set("Message.1", "You have to be a player, to use this command.");
 							ymlFileMessage.set("Message.2", "You do not have the permission for this command.");
-							ymlFileMessage.set("Message.3", "Do you whant to pay &a&l[MONEY]$&2 to use the \ncommand: &a&l[COMMAND]&2?");
+							ymlFileMessage.set("Message.3", "Do you want to pay &a&l[MONEY]$&2 to use the \ncommand: &a&l[COMMAND]&2?");
 							ymlFileMessage.set("Message.4", "&a&lYES");
 							ymlFileMessage.set("Message.5", "&c&lNO");
 							ymlFileMessage.set("Message.6", "&a&m&l---------&r ");
@@ -210,6 +299,11 @@ public class CommnandPayForCommand implements CommandExecutor {
 						    ymlFileMessage.set("Message.13", "Try [COMMAND]");
 						    ymlFileMessage.set("Message.14", "The Plugin vault has not been found on the server!");
 						    ymlFileMessage.set("Message.15", "There is a new update available for this plugin. &a( https://fof1092.de/Plugins/PFC )&2");
+							ymlFileMessage.set("Message.16", "Do you want to pay &a&l[NUMBER]&2 &a&l[ITEM](s)&2 to use the \ncommand: &a&l[COMMAND]&2?");
+							ymlFileMessage.set("Message.17", "You need &a&l[NUMBER]&2 more &a&l[ITEM](s)&2 to use this command.");
+							ymlFileMessage.set("Message.18", "You payed &a&l[NUMBER]&2 &a&l[ITEM](s)&2 to use this command.");
+							ymlFileMessage.set("Message.19", "Unable to find a command price.");
+							ymlFileMessage.set("Message.20", "You have to hold the item in your hand.");
 							ymlFileMessage.set("HelpTextGui.1", "&a[&2Click to use this command&a]");
 							ymlFileMessage.set("HelpTextGui.2", "&a[&2Next page&a]");
 							ymlFileMessage.set("HelpTextGui.3", "&a[&2Last page&a]");
@@ -221,7 +315,7 @@ public class CommnandPayForCommand implements CommandExecutor {
 							ymlFileMessage.set("HelpText.5", "This command is reloading the Config.yml and Commands.yml file.");
 							ymlFileMessage.save(fileMessages);
 						} catch (IOException e1) {
-							System.out.println("\u001B[31m[PayForCommand] ERROR: 002 | Can't create the Messages.yml. [" + e1.getMessage() +"]\u001B[0m");
+							System.out.println("\u001B[31m[PayForCommand] Can't create the Messages.yml. [" + e1.getMessage() +"]\u001B[0m");
 						}
 					}
 
@@ -241,13 +335,19 @@ public class CommnandPayForCommand implements CommandExecutor {
 					plugin.msg.put("msg.12", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.12")));
 					plugin.msg.put("msg.13", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.13")));
 					plugin.msg.put("msg.14", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.14")));
+					plugin.msg.put("msg.15", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.15")));
+					plugin.msg.put("msg.16", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.16")));
+					plugin.msg.put("msg.17", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.17")));
+					plugin.msg.put("msg.18", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.18")));
+					plugin.msg.put("msg.19", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.19")));
+					plugin.msg.put("msg.20", ChatColor.translateAlternateColorCodes('&', plugin.msg.get("color.1") + ymlFileMessage.getString("Message.20")));
 					plugin.msg.put("helpTextGui.1", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.1")));
 					plugin.msg.put("helpTextGui.2", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.2")));
 					plugin.msg.put("helpTextGui.3", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.3")));
 					plugin.msg.put("helpTextGui.4", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.4")));
 
 
-					HelpPageListener.setPluginNametag(plugin.msg.get("[PayForCommand]"));
+					HelpPageListener.initializeHelpPageListener("/PayForCommand help", plugin.msg.get("[PayForCommand]"));
 					
 					CommandListener.addCommand(new me.F_o_F_1092.PayForCommand.PluginManager.Command("/pfc help (Page)", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.1"))));
 					CommandListener.addCommand(new me.F_o_F_1092.PayForCommand.PluginManager.Command("/pfc info", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.2"))));

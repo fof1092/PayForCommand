@@ -22,11 +22,21 @@ import me.F_o_F_1092.PayForCommand.Main;
 
 public class UpdateListener {
 
-	public static boolean updateAvailable = false;
-	public static double updateDouble = 1.12;
-	public static String updateString = "1.1.2";
-	static String versionURL = "https://fof1092.de/Plugins/PFC/version.txt";
-	static String tag = "[PayForCommand]";
+	static Main plugin = Main.getPlugin();
+	
+	
+	static boolean updateAvailable = false;
+	static double updateDouble;
+	static String updateString;
+	static String versionURL;
+	static String tag;
+	
+	public static void initializeUpdateListener(double updateDouble, String updateString, String versionURL, String tag) {
+		UpdateListener.updateDouble = updateDouble;
+		UpdateListener.updateString = updateString;
+		UpdateListener.versionURL = versionURL;
+		UpdateListener.tag = tag;
+	}
 	
 	public static double getUpdateDoubleVersion() {
 		return updateDouble;
@@ -36,21 +46,21 @@ public class UpdateListener {
 		return updateString;
 	}
 	
-	public static void checkForUpdate(Main plugin) {
+	public static void checkForUpdate() {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override
 			public void run() {
 				try {
 					TrustManager[] trustAllCerts = new TrustManager[] {
-							new X509TrustManager() {
-								public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-									return null;
-								}
-								
-								public void checkClientTrusted(X509Certificate[] certs, String authType) {  }
-
-								public void checkServerTrusted(X509Certificate[] certs, String authType) {  }
+						new X509TrustManager() {
+							public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+								return null;
 							}
+							
+							public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+							
+							public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+						}
 					};
 					
 					SSLContext sslC = SSLContext.getInstance("SSL");

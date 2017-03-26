@@ -2,15 +2,20 @@ package me.F_o_F_1092.PayForCommand.PayForCommand;
 
 import java.util.ArrayList;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
 public class PayForCommand {
 
 	ArrayList<String> commands;
-	double price;
+	Double price;
+	Material itemMaterial;
+	Integer itemNumber;
+	Short itemSubID;
 	String permissions;
 	
-	public PayForCommand(ArrayList<String> commands, double price) {
+	public PayForCommand(ArrayList<String> commands) {
 		this.commands = commands;
-		this.price = price;
 	}
 	
 	public void setPermission(String permission) {
@@ -21,7 +26,29 @@ public class PayForCommand {
 		return this.commands;
 	}
 	
-	public double getPrice() {
+	public void setItemPrice(Material itemMaterial, Integer itemNumber, Short itemSubID) {
+		this.itemMaterial = itemMaterial;
+		this.itemNumber = itemNumber;
+		this.itemSubID = itemSubID;
+	}
+	
+	public boolean hasItemPrice() {
+		return this.itemMaterial != null;
+	}
+	
+	public ItemStack getItemPrice() {
+		return new ItemStack(this.itemMaterial, this.itemNumber, this.itemSubID);
+	}
+	
+	public void setMoneyPrice(double price) {
+		this.price = price;
+	}
+	
+	public boolean hasMoneyPrice() {
+		return this.price != null;
+	}
+	
+	public double getMoneyPrice() {
 		return this.price;
 	}
 	

@@ -51,7 +51,7 @@ public class JSONMessage {
 	public String getRunCommand() {
 		return runCommand;
 	}
-
+	
 	public void setOpenURL(String openURL) {
 		this.openURL = openURL;
 	}

@@ -10,8 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
 import me.F_o_F_1092.PayForCommand.PluginManager.CommandListener;
-import me.F_o_F_1092.PayForCommand.PluginManager.HelpPageListener;
-import me.F_o_F_1092.PayForCommand.PluginManager.TabCompleteListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.Spigot.HelpPageListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.Spigot.TabCompleteListener;
 
 public class CommnandPayForCommandTabCompleter implements TabCompleter {
 

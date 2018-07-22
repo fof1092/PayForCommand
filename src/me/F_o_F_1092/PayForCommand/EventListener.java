@@ -1,5 +1,8 @@
 package me.F_o_F_1092.PayForCommand;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,16 +13,12 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommand;
 import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommandListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.JSONMessage;
 import me.F_o_F_1092.PayForCommand.PluginManager.UpdateListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.Spigot.JSONMessageListener;
 import net.milkbowl.vault.economy.Economy;
 
 public class EventListener implements Listener {
-
-	private Main plugin;
-
-	public EventListener(Main plugin) {
-		this.plugin = plugin;
-	}
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
@@ -27,7 +26,7 @@ public class EventListener implements Listener {
 
 		if (UpdateListener.isAnewUpdateAvailable()) {
 			if (p.hasPermission("PayForCommand.UpdateMessage")) {
-				p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.15"));
+				p.sendMessage(Options.msg.get("[PayForCommand]") + Options.msg.get("msg.15"));
 			}
 		}
 	}
@@ -41,26 +40,26 @@ public class EventListener implements Listener {
 				PayForCommand payForCommand = PayForCommandListener.getCommand(e.getMessage());
 				
 				if (!payForCommand.hasItemPrice() && !payForCommand.hasMoneyPrice()) {
-					p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.19"));
+					p.sendMessage(Options.msg.get("[PayForCommand]") + Options.msg.get("msg.19"));
 				} else {
-					if (payForCommand.hasItemPrice() && !plugin.vault) {
-						p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.14"));
+					if (payForCommand.hasItemPrice() && !Options.vault) {
+						p.sendMessage(Options.msg.get("[PayForCommand]") + Options.msg.get("msg.14"));
 					} else {
 						if (payForCommand.getPermission() != null && !p.hasPermission(payForCommand.getPermission())) {
-							p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.1")); 
+							p.sendMessage(Options.msg.get("[PayForCommand]") + Options.msg.get("msg.1")); 
 						} else {
-							if (!plugin.playerCommand.containsKey(p.getUniqueId()) || plugin.playerCommand.containsKey(p.getUniqueId()) && !plugin.playerCommand.get(p.getUniqueId()).equals(e.getMessage())) {
-								p.sendMessage(plugin.msg.get("msg.6") + plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.6"));
+							if (!Options.playerCommand.containsKey(p.getUniqueId()) || Options.playerCommand.containsKey(p.getUniqueId()) && !Options.playerCommand.get(p.getUniqueId()).equals(e.getMessage())) {
+								p.sendMessage(Options.msg.get("msg.6") + Options.msg.get("[PayForCommand]") + Options.msg.get("msg.6"));
 								p.sendMessage("");
 								
 								String replaceString = null;
 								
 								if (payForCommand.hasMoneyPrice()) {
-									replaceString = plugin.msg.get("msg.3");
+									replaceString = Options.msg.get("msg.3");
 									replaceString = replaceString.replace("[MONEY]", payForCommand.getMoneyPrice() + "");
 									replaceString = replaceString.replace("[COMMAND]", e.getMessage());
 								} else if (payForCommand.hasItemPrice()) {
-									replaceString = plugin.msg.get("msg.16");
+									replaceString = Options.msg.get("msg.16");
 									replaceString = replaceString.replace("[NUMBER]", payForCommand.getItemPrice().getAmount() + "");
 									replaceString = replaceString.replace("[ITEM]", payForCommand.getItemPrice().getType().toString() + "");
 									replaceString = replaceString.replace("[COMMAND]", e.getMessage());
@@ -70,35 +69,56 @@ public class EventListener implements Listener {
 								
 								p.sendMessage("");
 								p.sendMessage("");
-								Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + p.getName() + " " + plugin.msg.get("msg.4-5"));
+								Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + p.getName() + " " + Options.msg.get("msg.4-5"));
+								
+								List<JSONMessage> jsonMessages = new ArrayList<JSONMessage>();
+								
+								JSONMessage jsonMsgSpace1 = new JSONMessage("           ");
+								
+								JSONMessage jsonMsgYes = new JSONMessage(Options.msg.get("msg.4"));
+								jsonMsgYes.setRunCommand("/PayForCommand yes");
+								jsonMsgYes.setHoverText(Options.msg.get("msg.4"));
+								
+								JSONMessage jsonMsgSpace2 = new JSONMessage("                      ");
+								
+								JSONMessage jsonMsgNo = new JSONMessage(Options.msg.get("msg.5"));
+								jsonMsgNo.setRunCommand("/PayForCommand no");
+								jsonMsgNo.setHoverText(Options.msg.get("msg.5"));
+								
+								jsonMessages.add(jsonMsgSpace1);
+								jsonMessages.add(jsonMsgYes);
+								jsonMessages.add(jsonMsgSpace2);
+								jsonMessages.add(jsonMsgNo);
+								
+								JSONMessageListener.send(p, JSONMessageListener.putJSONMessagesTogether(jsonMessages));
 								
 								p.sendMessage("");
-								p.sendMessage(plugin.msg.get("msg.6") + plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.6"));
+								p.sendMessage(Options.msg.get("msg.6") + Options.msg.get("[PayForCommand]") + Options.msg.get("msg.6"));
 								
-								plugin.playerCommand.put(p.getUniqueId(), e.getMessage());
+								Options.playerCommand.put(p.getUniqueId(), e.getMessage());
 								
 								e.setCancelled(true);
 							} else {
 								if (payForCommand.hasMoneyPrice()) {
 									if (getVault().getBalance(p) < payForCommand.getMoneyPrice()) {
-										p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.8"));
+										p.sendMessage(Options.msg.get("[PayForCommand]") + Options.msg.get("msg.8"));
 										e.setCancelled(true);
 									} else {
 										getVault().withdrawPlayer(p, payForCommand.getMoneyPrice());
 										
-										String replaceString = plugin.msg.get("msg.9");
+										String replaceString = Options.msg.get("msg.9");
 										replaceString = replaceString.replace("[MONEY]", payForCommand.getMoneyPrice() + "");
-										p.sendMessage(plugin.msg.get("[PayForCommand]") + replaceString); 
+										p.sendMessage(Options.msg.get("[PayForCommand]") + replaceString); 
 									}
 								} else if (payForCommand.hasItemPrice()) {
 									
 									if (p.getInventory().getItemInMainHand().getType() != payForCommand.getItemPrice().getType()) {
-										p.sendMessage(plugin.msg.get("[PayForCommand]") + plugin.msg.get("msg.20"));
+										p.sendMessage(Options.msg.get("[PayForCommand]") + Options.msg.get("msg.20"));
 										
 										e.setCancelled(true);
 									} else {
 										if (p.getInventory().getItemInMainHand().getAmount() < payForCommand.getItemPrice().getAmount()) {
-											String replaceString = plugin.msg.get("msg.17");
+											String replaceString = Options.msg.get("msg.17");
 											replaceString = replaceString.replace("[NUMBER]", payForCommand.getItemPrice().getAmount() + "");
 											replaceString = replaceString.replace("[ITEM]", payForCommand.getItemPrice().getType().toString() + "");
 											replaceString = replaceString.replace("[COMMAND]", e.getMessage());
@@ -114,7 +134,7 @@ public class EventListener implements Listener {
 												p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - payForCommand.getItemPrice().getAmount());
 											}
 											
-											String replaceString = plugin.msg.get("msg.18");
+											String replaceString = Options.msg.get("msg.18");
 											replaceString = replaceString.replace("[NUMBER]", payForCommand.getItemPrice().getAmount() + "");
 											replaceString = replaceString.replace("[ITEM]", payForCommand.getItemPrice().getType().toString() + "");
 											replaceString = replaceString.replace("[COMMAND]", e.getMessage());

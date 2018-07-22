@@ -3,8 +3,6 @@ package me.F_o_F_1092.PayForCommand;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,19 +13,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommand;
-import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommandListener;
 import me.F_o_F_1092.PayForCommand.PluginManager.Command;
 import me.F_o_F_1092.PayForCommand.PluginManager.CommandListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.ServerLog;
 import me.F_o_F_1092.PayForCommand.PluginManager.HelpPageListener;
-import me.F_o_F_1092.PayForCommand.PluginManager.UpdateListener;
+import me.F_o_F_1092.PayForCommand.PluginManager.Spigot.UpdateListener;
+import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommand;
+import me.F_o_F_1092.PayForCommand.PayForCommand.PayForCommandListener;
 
 public class Main extends JavaPlugin {
-
-	public HashMap<String, String> msg = new HashMap<String, String>();
-	public HashMap<UUID, String> playerCommand = new HashMap<UUID, String>();
-	boolean vault = false;
-
 	
 	static Main plugin;
 	
@@ -41,20 +35,31 @@ public class Main extends JavaPlugin {
 
 		plugin = this;
 		
-		UpdateListener.initializeUpdateListener(1.16, "1.1.6", "https://fof1092.de/Plugins/PFC/version-MC1.9-1.11.txt", "[PayForCommand]");
+		ServerLog.setPluginTag("§a[§2PayForCommand§a]§2");
+		UpdateListener.initializeUpdateListener(1.17, "1.1.7", 31350);
 		UpdateListener.checkForUpdate();
+
+		setup();
 		
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvents(new EventListener(), this);
+
+		this.getCommand("PayForCommand").setExecutor(new CommnandPayForCommand());
+		this.getCommand("PayForCommand").setTabCompleter(new CommnandPayForCommandTabCompleter());
+	}
+
+	@Override
+	public void onDisable() {
+		disable();
+	}
+	
+	
+	public static void setup() {
 		
 		if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
-			vault = true;
+			Options.vault = true;
 		}
 
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(new EventListener(this), this);
-
-		this.getCommand("PayForCommand").setExecutor(new CommnandPayForCommand(this));
-		this.getCommand("PayForCommand").setTabCompleter(new CommnandPayForCommandTabCompleter());
-		
 		File fileCommand = new File("plugins/PayForCommand/Commands.yml");
 		FileConfiguration ymlFileCommand = YamlConfiguration.loadConfiguration(fileCommand);
 
@@ -81,7 +86,7 @@ public class Main extends JavaPlugin {
 				ymlFileCommand.set("TestCommand2.Permission", "The.Default.Command.Permission.*");
 				ymlFileCommand.save(fileCommand);
 			} catch (IOException e1) {
-				System.out.println("\u001B[31m[PayForCommand] Can't create the Config.yml. [" + e1.getMessage() +"]\u001B[0m");
+				ServerLog.err("Can't create the Config.yml. [" + e1.getMessage() +"]");
 			}
 		} else {
 			double version = ymlFileCommand.getDouble("Version");
@@ -103,7 +108,7 @@ public class Main extends JavaPlugin {
 					
 					ymlFileCommand.save(fileCommand);
 				} catch (IOException e) {		
-					System.out.println("\u001B[31m[PayForCommand] Can't create the Config.yml. [" + e.getMessage() +"]\u001B[0m");
+					ServerLog.err("Can't update the Config.yml. [" + e.getMessage() +"]");
 				}
 			}
 		}
@@ -145,7 +150,7 @@ public class Main extends JavaPlugin {
 					
 					PayForCommandListener.addCommand(payForCommand);
 				} catch (Exception e) {
-					System.out.println("\u001B[31m[PayForCommand] Faild to load the Configuration for the Command \"" + strg + "\". [" + e.getMessage() +"]\u001B[0m");
+					ServerLog.err("Faild to load the Configuration for the Command \"" + strg + "\". [" + e.getMessage() +"]");
 				}
 			}
 		}
@@ -192,7 +197,7 @@ public class Main extends JavaPlugin {
 				ymlFileMessage.set("HelpText.5", "This command is reloading the Config.yml and Commands.yml file.");
 				ymlFileMessage.save(fileMessages);
 			} catch (IOException e1) {
-				System.out.println("\u001B[31m[PayForCommand] Can't create the Messages.yml. [" + e1.getMessage() +"]\u001B[0m");
+				ServerLog.err("[PayForCommand] Can't create the Messages.yml. [" + e1.getMessage() +"]");
 			}
 		} else {
 			double version = ymlFileMessage.getDouble("Version");
@@ -210,50 +215,58 @@ public class Main extends JavaPlugin {
 					
 					ymlFileMessage.save(fileMessages);
 				} catch (IOException e) {		
-					System.out.println("\u001B[31m[PayForCommand] Can't create the Messages.yml. [" + e.getMessage() +"]\u001B[0m");
+					ServerLog.err("[PayForCommand] Can't update the Messages.yml. [" + e.getMessage() +"]");
 				}
 			}
 		}
 
-		msg.put("[PayForCommand]", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("[PayForCommand]")));
-		msg.put("color.1", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("Color.1")));
-		msg.put("color.2", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("Color.2")));
-		msg.put("msg.1", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.1")));
-		msg.put("msg.2", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.2")));
-		msg.put("msg.3", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.3")));
-		msg.put("msg.4-5", ChatColor.translateAlternateColorCodes('&', "[\"\",{\"text\":\"           \"},{\"text\":\"" + ymlFileMessage.getString("Message.4") + "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/PayForCommand yes\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + ymlFileMessage.getString("Message.4") + "\"}]}}},{\"text\":\"                      \"},{\"text\":\"" + ymlFileMessage.getString("Message.5") + "\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/PayForCommand no\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + ymlFileMessage.getString("Message.5") + "\"}]}}}]))"));
-		msg.put("msg.6", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.6")));
-		msg.put("msg.7", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.7")));
-		msg.put("msg.8", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.8")));
-		msg.put("msg.9", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.9")));
-		msg.put("msg.10", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.10")));
-		msg.put("msg.11", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.11")));
-		msg.put("msg.12", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.12")));
-		msg.put("msg.13", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.13")));
-		msg.put("msg.14", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.14")));
-		msg.put("msg.15", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.15")));
-		msg.put("msg.16", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.16")));
-		msg.put("msg.17", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.17")));
-		msg.put("msg.18", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.18")));
-		msg.put("msg.19", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.19")));
-		msg.put("msg.20", ChatColor.translateAlternateColorCodes('&', msg.get("color.1") + ymlFileMessage.getString("Message.20")));
-		msg.put("helpTextGui.1", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.1")));
-		msg.put("helpTextGui.2", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.2")));
-		msg.put("helpTextGui.3", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.3")));
-		msg.put("helpTextGui.4", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.4")));
+		Options.msg.put("[PayForCommand]", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("[PayForCommand]")));
+		Options.msg.put("color.1", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("Color.1")));
+		Options.msg.put("color.2", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("Color.2")));
+		Options.msg.put("msg.1", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.1")));
+		Options.msg.put("msg.2", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.2")));
+		Options.msg.put("msg.3", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.3")));
+		Options.msg.put("msg.4", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.4")));
+		Options.msg.put("msg.5", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.5")));
+		Options.msg.put("msg.6", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.6")));
+		Options.msg.put("msg.7", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.7")));
+		Options.msg.put("msg.8", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.8")));
+		Options.msg.put("msg.9", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.9")));
+		Options.msg.put("msg.10", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.10")));
+		Options.msg.put("msg.11", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.11")));
+		Options.msg.put("msg.12", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.12")));
+		Options.msg.put("msg.13", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.13")));
+		Options.msg.put("msg.14", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.14")));
+		Options.msg.put("msg.15", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.15")));
+		Options.msg.put("msg.16", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.16")));
+		Options.msg.put("msg.17", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.17")));
+		Options.msg.put("msg.18", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.18")));
+		Options.msg.put("msg.19", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.19")));
+		Options.msg.put("msg.20", ChatColor.translateAlternateColorCodes('&', Options.msg.get("color.1") + ymlFileMessage.getString("Message.20")));
+		Options.msg.put("helpTextGui.1", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.1")));
+		Options.msg.put("helpTextGui.2", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.2")));
+		Options.msg.put("helpTextGui.3", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.3")));
+		Options.msg.put("helpTextGui.4", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpTextGui.4")));
 
 		
-		HelpPageListener.initializeHelpPageListener("/PayForCommand help", msg.get("[PayForCommand]"));
+		HelpPageListener.initializeHelpPageListener("/PayForCommand help", Options.msg.get("[PayForCommand]"));
 		
 		CommandListener.addCommand(new Command("/pfc help (Page)", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.1"))));
 		CommandListener.addCommand(new Command("/pfc info", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.2"))));
 		CommandListener.addCommand(new Command("/pfc yes", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.3"))));
 		CommandListener.addCommand(new Command("/pfc no", null, ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.4"))));
 		CommandListener.addCommand(new Command("/pfc reload", "PayForCommand.Reload", ChatColor.translateAlternateColorCodes('&', ymlFileMessage.getString("HelpText.5"))));
-		
 	}
-
-	public void onDisable() {
+	
+	public static void disable() {
+		Options.msg.clear();
+		Options.playerCommand.clear();
+		Options.vault = false;
+		
+		PayForCommandListener.clearCommands();
+		
+		CommandListener.clearCommands();
+		
 		System.out.println("[PayForCommand] a Plugin by F_o_F_1092");
 	}
 

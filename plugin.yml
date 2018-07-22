@@ -1,5 +1,6 @@
 name: PayForCommand
-version: 1.16
+version: 1.17
+api-version: 1.13
 main: me.F_o_F_1092.PayForCommand.Main
 author: F_o_F_1092
 commands:

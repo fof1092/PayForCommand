@@ -36,6 +36,7 @@ public class PayForCommand {
 		return this.itemMaterial != null;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public ItemStack getItemPrice() {
 		return new ItemStack(this.itemMaterial, this.itemNumber, this.itemSubID);
 	}

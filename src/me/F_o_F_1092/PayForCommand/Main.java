@@ -36,9 +36,9 @@ public class Main extends JavaPlugin {
 		plugin = this;
 		
 		ServerLog.setPluginTag("§a[§2PayForCommand§a]§2");
-		UpdateListener.initializeUpdateListener(1.17, "1.1.7", 31350);
+		UpdateListener.initializeUpdateListener(1.18, "1.1.8", 31350);
 		UpdateListener.checkForUpdate();
-
+		
 		setup();
 		
 		PluginManager pm = getServer().getPluginManager();
@@ -54,6 +54,7 @@ public class Main extends JavaPlugin {
 	}
 	
 	
+	@SuppressWarnings("deprecation")
 	public static void setup() {
 		
 		if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
@@ -61,8 +62,9 @@ public class Main extends JavaPlugin {
 		}
 
 		File fileCommand = new File("plugins/PayForCommand/Commands.yml");
-		FileConfiguration ymlFileCommand = YamlConfiguration.loadConfiguration(fileCommand);
+		YamlConfiguration ymlFileCommand = YamlConfiguration.loadConfiguration(fileCommand);
 
+		
 		if(!fileCommand.exists()) {
 			try {
 				ymlFileCommand.save(fileCommand);
